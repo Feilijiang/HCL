@@ -8,7 +8,7 @@ os.chdir("./HCL/Fig1")
 
 
 ## merge the dataset from different tissues
-tissues=["AdultAdrenalGland1","AdultAdrenalGland2","AdultArtery1",         
+tissues=["AdultAdrenalGland2","AdultArtery1",         
 "AdultAscendingColon1","AdultBladder1","AdultBladder2","AdultBoneMarrow1" ,    
 "AdultBoneMarrow2","AdultCerebellum1","AdultCervix1","AdultTransverseColon1" ,         
 "AdultDuodenum1", "AdultEpityphlon1","AdultEsophagus1","AdultFallopiantube1",  
@@ -80,7 +80,7 @@ adata.write('./HCL_scanpy2.h5ad')
 
 ## Choose variable genes
 adata=sc.read("./HCL_scanpy2.h5ad")
-filter_result = sc.pp.filter_genes_dispersion(adata.X, min_mean=0.001, max_mean=15, min_disp=0.5)
+filter_result = sc.pp.filter_genes_dispersion(adata.X, min_mean=0.001, max_mean=15, min_disp=0.45)
 sc.pl.filter_genes_dispersion(filter_result)
 adata = adata[:, filter_result.gene_subset]
 adata.shape()
@@ -106,8 +106,8 @@ sc.pl.pca_variance_ratio(adata, log=True,  show=100,n_pcs=100)
 
 
 ## Computing the neighborhood graph and do t-sne
-sc.pp.neighbors(adata, n_neighbors=10,n_pcs=50)
-sc.tl.louvain(adata, resolution=4)
+sc.pp.neighbors(adata, n_neighbors=15,n_pcs=50)
+sc.tl.louvain(adata, resolution=3.5)
 sc.tl.tsne(adata,use_fast_tsne=True,n_jobs=20,perplexity=100,n_pcs=50)
 sc.pl.tsne(adata, color='louvain',size=8,legend_loc="on data")
 sc.pl.tsne(adata, color='louvain',size=8)
@@ -121,7 +121,7 @@ new_cluster_names = list(range(1,103))
 adata.rename_categories('louvain', new_cluster_names)
 
 ## Find marker genes using wilcoxon test
-sc.tl.rank_genes_groups(adata, 'louvain', method='wilcoxon')
+sc.tl.rank_genes_groups(adata, 'louvain', method='wilcoxon',n_genes=200)
 result = adata.uns['rank_genes_groups']
 groups = result['names'].dtype.names
 pd.DataFrame(
